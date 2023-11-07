@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cmath>
 
+using namespace std;
 // Link constructor implementation
 Link::Link(double l, double w, double q) : l(l), w(w), q(q) {}
 
@@ -29,9 +30,30 @@ void Robot::FK(double q1, double q2, double q3, double &x, double &y, double &th
 }
 
 void Robot::IK(double x, double y, double theta, double &q1, double &q2, double &q3){
-    q1 = atan2(y,x) - atan2(links[1].l*sin(theta), l0 + links[1].l*cos(theta));
-    q2 = atan2(y - links[1].l*sin(q1), x - links[1].l*cos(q1)) - q1;
+    // vector<double> q1_list;
+    // vector<double> q2_list;
+    // vector<double> q3_list;
+
+    // to frame 1
+    double theta0 = linkpose[0][2];
+    double f1x = cos(-theta0)*x -sin(-theta0)*y - l0;
+    double f2y = sin(-theta0)*x +cos(-theta0)*y;
+    x = f1x;
+    y = f2y;
+    theta = theta - theta0;
+
+    double u = x - links[3].l*cos(theta);
+    double v = y - links[3].l*sin(theta);
+    double cosq2 = (u*u + v*v - links[1].l*links[1].l - links[2].l*links[2].l)/(2*links[1].l*links[2].l);
+    double sinq2 = sqrt(1-cosq2*cosq2);
+    q2 = atan2(sinq2, cosq2);
+    double sinq1 = (v*(links[1].l + links[2].l*cosq2) - u*links[2].l*sinq2)/(links[1].l*links[1].l + links[2].l*links[2].l + 2*links[1].l*links[2].l*cosq2);
+    double cosq1 = (u*(links[1].l + links[2].l*cosq2) + v*links[2].l*sinq2)/(links[1].l*links[1].l + links[2].l*links[2].l + 2*links[1].l*links[2].l*cosq2);
+    q1 = atan2(sinq1, cosq1);
     q3 = theta - q1 - q2;
+    cout<<"q1: "<<q1<<endl;
+    cout<<"q2: "<<q2<<endl;
+    cout<<"q3: "<<q3<<endl;
 }
 
 void Robot::moveToJointState(double q1, double q2, double q3){
