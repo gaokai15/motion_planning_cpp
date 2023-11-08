@@ -48,9 +48,17 @@ public:
 
 
     void getGraspPose(Box box, double& x, double& y, double& alpha){
+        // given box pose, update robot pose
         alpha = box.alpha;
         x = box.x - cos(box.alpha)*box.w/2;
         y = box.y - sin(box.alpha)*box.w/2;
+    };
+
+    void updateTargetBoxPose(double x, double y, double alpha){
+        // given robot pose, update box pose
+        target.x = x + cos(alpha)*target.w/2;
+        target.y = y + sin(alpha)*target.w/2;
+        target.alpha = alpha;
     };
 
 
@@ -207,10 +215,10 @@ public:
         cv::Mat image = cv::Mat::zeros(ImageWidth, ImageHeight, CV_8UC3);
 
         update(image);
-        int num_steps = 30;
-        // initial state
-        double i_q1, i_q2, i_q3;
-        double curr_q1, curr_q2, curr_q3;
+        int num_steps = 5;
+        double i_q1, i_q2, i_q3; // initial state
+        double curr_q1, curr_q2, curr_q3; // current state
+        double x,y,alpha; // robot pose
         i_q1 = path[0].joint[0];
         i_q2 = path[0].joint[1];
         i_q3 = path[0].joint[2];
@@ -223,11 +231,18 @@ public:
                 curr_q2 = i_q2 + (q2-i_q2)/num_steps*i;
                 curr_q3 = i_q3 + (q3-i_q3)/num_steps*i;
                 robot.moveToJointState(curr_q1, curr_q2, curr_q3);
+                robot.FK(q1,q2,q3,x,y,alpha);
+                updateTargetBoxPose(x,y,alpha);
+                update(image);
+                cv::imshow("Animation", image);
+                cv::waitKey(50);
             }
-            update(image);
-            cv::imshow("Animation", image);
-            cv::waitKey(50);
+            i_q1 = q1;
+            i_q2 = q2;
+            i_q3 = q3;
         }
+        cv::imshow("Animation", image);
+        cv::waitKey(0);
         return 0;
     }
 

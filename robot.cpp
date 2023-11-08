@@ -76,10 +76,6 @@ void Robot::moveToJointState(double q1, double q2, double q3){
     }
 }
 
-void Robot::getEndEffectorPose() const {
-    std::cout << "End-effector position: (" << linkpose[3][0] << ", "
-              << linkpose[3][1] << ")" << std::endl;
-}
 
 // printConfiguration implementation
 void Robot::printConfiguration() const {

@@ -31,9 +31,6 @@ public:
     // move to joint state
     void moveToJointState(double q1, double q2, double q3);
 
-    // Function to get the end-effector pose
-    void getEndEffectorPose() const;
-
     // Function to print the current configuration of the robot
     void printConfiguration() const;
 };
