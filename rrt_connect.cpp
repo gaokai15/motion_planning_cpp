@@ -9,8 +9,7 @@
 #include "rrt_connect.h"
 
 
-RRTTree::RRTTree(const State &rootState, CollisionChecker *collisionChecker) {
-    collisionChecker = collisionChecker;
+RRTTree::RRTTree(const State &rootState, CollisionChecker &collisionChecker) : collisionChecker(collisionChecker) {
     nodes.push_back(new TreeNode(rootState));
 }
 
@@ -77,7 +76,7 @@ TreeNode *RRTTree::extend(const State &targetState) {
     }
 
     // Check if the path to the new state is collision-free
-    if (collisionChecker->isCollisionFree(newState)) {
+    if (collisionChecker.isCollisionFree(newState)) {
         // Create a new node and add it to the tree
         TreeNode *newNode = new TreeNode(newState, nearestNode);
         nodes.push_back(newNode);
@@ -88,11 +87,11 @@ TreeNode *RRTTree::extend(const State &targetState) {
     return nullptr;
 }
 
-TreeNode *RRTTree::connect(const State &targetState) {
+TreeNode *RRTTree::connect(const State &targetState, bool &Connected) {
     TreeNode *newNode = nullptr;
+    TreeNode *nearestNode = nearest(targetState);
 
     while (true) {
-        TreeNode *nearestNode = nearest(targetState);
         
         State direction(
             targetState.joint[0] - nearestNode->state.joint[0],
@@ -128,13 +127,15 @@ TreeNode *RRTTree::connect(const State &targetState) {
         }
 
         // Check if the path to the new state is collision-free
-        if (collisionChecker->isCollisionFree(newState)) {
+        if (collisionChecker.isCollisionFree(newState)) {
             // Create a new node and add it to the tree
             newNode = new TreeNode(newState, nearestNode);
             nodes.push_back(newNode);
+            nearestNode = newNode;
 
             // If a step was taken closer, continue, otherwise we've reached the target state
             if (!stepCloser) {
+                Connected = true;
                 return newNode;
             }
         } else {
@@ -144,7 +145,7 @@ TreeNode *RRTTree::connect(const State &targetState) {
     }
 }
 
-RRTConnectPlanner::RRTConnectPlanner(const State &start, const State &goal, CollisionChecker *collisionChecker){
+RRTConnectPlanner::RRTConnectPlanner(const State &start, const State &goal, CollisionChecker &collisionChecker): collisionChecker(collisionChecker){
     // new (&treeA) RRTTree(start, collisionChecker);
     // new (&treeB) RRTTree(goal, collisionChecker);
     // exit(0);
@@ -153,13 +154,22 @@ RRTConnectPlanner::RRTConnectPlanner(const State &start, const State &goal, Coll
 }
 
 std::vector<State> RRTConnectPlanner::plan() {
+    int counter = 0;
     bool reversed = false;
     while (true) {
+        if(counter%1000==0){
+            cout<<"Iteration: "<<counter<<endl;
+        }
+        counter++;
         State randState = randomState();
-        if (collisionChecker->isCollisionFree(randState)) {
+        if (collisionChecker.isCollisionFree(randState)) {
             TreeNode *newNodeA = treeA->extend(randState);
-            if (newNodeA && treeB->connect(newNodeA->state)) {
-                return extractPath(newNodeA, treeB->nearest(newNodeA->state));
+            bool Connected = false;
+            if(newNodeA) treeB->connect(newNodeA->state, Connected);
+            if (Connected) {
+                std::vector<State> path = extractPath(newNodeA, treeB->nearest(newNodeA->state));
+                if(reversed) std::reverse(path.begin(), path.end());
+                return path;
             }
             std::swap(treeA, treeB);
             reversed = !reversed;

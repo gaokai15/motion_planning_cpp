@@ -23,11 +23,11 @@ class RRTTree {
 private:
     
 public:
-    CollisionChecker* collisionChecker;
+    CollisionChecker collisionChecker;
     std::vector<TreeNode *> nodes;
     // Define step size
     static constexpr double stepSize = 0.05; // RRT step size
-    RRTTree(const State &rootState, CollisionChecker *collisionChecker);
+    RRTTree(const State &rootState, CollisionChecker &collisionChecker);
 
     ~RRTTree();
 
@@ -37,7 +37,7 @@ public:
 
     TreeNode *extend(const State &targetState);
 
-    TreeNode *connect(const State &targetState);
+    TreeNode *connect(const State &targetState, bool &Connected);
 
     // Additional methods as necessary
 };
@@ -46,11 +46,11 @@ class RRTConnectPlanner {
 private:
     RRTTree *treeA;
     RRTTree *treeB;
-    CollisionChecker *collisionChecker;
+    CollisionChecker collisionChecker;
 
     // Assuming you have some predefined limits for your joints
-    static constexpr double minJointLimits[3] = {-M_PI, -M_PI, -M_PI}; // Replace with your actual limits
-    static constexpr double maxJointLimits[3] = {M_PI, M_PI, M_PI}; // Replace with your actual limits
+    static constexpr double minJointLimits[3] = {-M_PI/2, -M_PI/2, -M_PI/2}; // Replace with your actual limits
+    static constexpr double maxJointLimits[3] = {M_PI/2, M_PI/2, M_PI/2}; // Replace with your actual limits
 
     // Random device and generator for random state generation
     std::random_device rd;
@@ -62,7 +62,7 @@ private:
     };
 
 public:
-    RRTConnectPlanner(const State &start, const State &goal, CollisionChecker *collisionChecker);
+    RRTConnectPlanner(const State &start, const State &goal, CollisionChecker &collisionChecker);
 
     std::vector<State> plan();
 

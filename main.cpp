@@ -19,13 +19,12 @@ int main(){
     cout<<"goal_pose: "<<x<<", "<<y<<", "<<alpha<<endl;
     double g_q1,g_q2,g_q3;
     env.robot.IK(x,y,alpha,g_q1,g_q2,g_q3);
-    
     State start(q1, q2, q3);
     State goal(g_q1, g_q2, g_q3);
     CollisionChecker collisionCheckerInstance(env);
-    RRTConnectPlanner planner(start, goal, &collisionCheckerInstance);
-
+    RRTConnectPlanner planner(start, goal, collisionCheckerInstance);
     std::vector<State> path = planner.plan();
+    path.push_back(State(g_q1, g_q2, g_q3));
     env.animation(path);
     return 0;
 }

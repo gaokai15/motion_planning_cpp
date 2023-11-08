@@ -3,7 +3,10 @@
 
 
 bool CollisionChecker::isCollisionFree(const State &state) {
-    return true;
+    bool res = env.isCollisionFree(state);
+    // cout<<"isCollisionFree: "<<res<<endl;
+    // env.plotEnv();
+    return res;
 }
 
 

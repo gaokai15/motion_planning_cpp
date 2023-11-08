@@ -61,7 +61,6 @@ void Robot::moveToJointState(double q1, double q2, double q3){
     links[1].q = q1;
     links[2].q = q2;
     links[3].q = q3;
-
     double x=0, y=0, theta=M_PI/2;
     linkpose[0][0] = x;
     linkpose[0][1] = y;

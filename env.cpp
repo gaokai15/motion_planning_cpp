@@ -36,9 +36,10 @@ void Environment::setUpEnv(){
 
     // Define a obstacle boxes
     Box box;
-    box = Box(1.1, 0.7, 0.0, 0.3, 0.3);
+    double gap = 0.6; // gap between boxes, 0.35
+    box = Box(1.1, 0.35+gap, 0.0, 0.3, 0.3);
     boxes.push_back(box);
-    box = Box(1.1, 0.0, 0.0, 0.3, 0.3);
+    box = Box(1.1, 0.35-gap, 0.0, 0.3, 0.3);
     boxes.push_back(box);
 
     // Target 
@@ -212,9 +213,10 @@ void Environment::update(cv::Mat &image) {
 int Environment::animation(std::vector<State> path){
     // Create a blank image (500x500 pixels) with a white background (color is BGR)
     cv::Mat image = cv::Mat::zeros(ImageWidth, ImageHeight, CV_8UC3);
-
-    update(image);
-    int num_steps = 5;
+    cout<<"Animation"<<endl;
+    plotEnv();
+    
+    int num_steps = 1;
     double i_q1, i_q2, i_q3; // initial state
     double curr_q1, curr_q2, curr_q3; // current state
     double x,y,alpha; // robot pose
