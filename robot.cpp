@@ -76,7 +76,6 @@ void Robot::moveToJointState(double q1, double q2, double q3){
     }
 }
 
-
 // printConfiguration implementation
 void Robot::printConfiguration() const {
     for (size_t i = 0; i < links.size(); ++i) {
