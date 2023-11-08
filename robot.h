@@ -3,6 +3,8 @@
 
 #include <vector>
 #include <utility>
+#include "vec2.h"
+
 
 // Define a structure for a link
 struct Link {
@@ -33,6 +35,9 @@ public:
 
     // Function to print the current configuration of the robot
     void printConfiguration() const;
+
+    // Function to output collision polygons
+    vector<vector<Vec2>> getCollisionPolygons() const;
 };
 
 #endif // ROBOT_H

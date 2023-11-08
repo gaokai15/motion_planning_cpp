@@ -9,7 +9,8 @@
 #include "rrt_connect.h"
 
 
-RRTTree::RRTTree(const State &rootState) {
+RRTTree::RRTTree(const State &rootState, CollisionChecker *collisionChecker) {
+    collisionChecker = collisionChecker;
     nodes.push_back(new TreeNode(rootState));
 }
 
@@ -76,7 +77,7 @@ TreeNode *RRTTree::extend(const State &targetState) {
     }
 
     // Check if the path to the new state is collision-free
-    if (collisionChecker.isCollisionFree(newState)) {
+    if (collisionChecker->isCollisionFree(newState)) {
         // Create a new node and add it to the tree
         TreeNode *newNode = new TreeNode(newState, nearestNode);
         nodes.push_back(newNode);
@@ -127,7 +128,7 @@ TreeNode *RRTTree::connect(const State &targetState) {
         }
 
         // Check if the path to the new state is collision-free
-        if (collisionChecker.isCollisionFree(newState)) {
+        if (collisionChecker->isCollisionFree(newState)) {
             // Create a new node and add it to the tree
             newNode = new TreeNode(newState, nearestNode);
             nodes.push_back(newNode);
@@ -143,15 +144,22 @@ TreeNode *RRTTree::connect(const State &targetState) {
     }
 }
 
+RRTConnectPlanner::RRTConnectPlanner(const State &start, const State &goal, CollisionChecker *collisionChecker){
+    // new (&treeA) RRTTree(start, collisionChecker);
+    // new (&treeB) RRTTree(goal, collisionChecker);
+    // exit(0);
+    treeA = new RRTTree(start, collisionChecker);
+    treeB = new RRTTree(goal, collisionChecker);
+}
 
 std::vector<State> RRTConnectPlanner::plan() {
     bool reversed = false;
     while (true) {
         State randState = randomState();
-        if (collisionChecker.isCollisionFree(randState)) {
-            TreeNode *newNodeA = treeA.extend(randState);
-            if (newNodeA && treeB.connect(newNodeA->state)) {
-                return extractPath(newNodeA, treeB.nearest(newNodeA->state));
+        if (collisionChecker->isCollisionFree(randState)) {
+            TreeNode *newNodeA = treeA->extend(randState);
+            if (newNodeA && treeB->connect(newNodeA->state)) {
+                return extractPath(newNodeA, treeB->nearest(newNodeA->state));
             }
             std::swap(treeA, treeB);
             reversed = !reversed;

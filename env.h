@@ -22,6 +22,13 @@ struct Box {
 
     Box(double x, double y, double alpha, double w, double h) : x(x), y(y), alpha(alpha), w(w), h(h) {}
     Box() : x(0), y(0), alpha(0), w(0), h(0) {}
+
+    vector<Vec2> getVertices();
+};
+
+
+struct Projection {
+    float min, max;
 };
 
 
@@ -63,6 +70,18 @@ public:
     void env2ImgLoc(double Ex, double Ey, double& x, double& y);
 
     void img2EnvLoc(double x, double y, double& Ex, double& Ey);
+
+    bool isCollisionFree(const State &state);
+
+    // Project a polygon on an axis and returns it as a range
+    Projection project(const std::vector<Vec2>& polygon, const Vec2& axis);
+
+    // Check if two projections overlap
+    bool overlap(const Projection& proj1, const Projection& proj2);
+
+    // The main function to check for polygon collision
+    bool checkPolygonCollision(const std::vector<Vec2>& poly1, const std::vector<Vec2>& poly2);
+    
 };
 
 #endif // ENV_H

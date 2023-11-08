@@ -21,12 +21,13 @@ public:
 
 class RRTTree {
 private:
-    CollisionChecker collisionChecker;
+    
 public:
+    CollisionChecker* collisionChecker;
     std::vector<TreeNode *> nodes;
     // Define step size
     static constexpr double stepSize = 0.05; // RRT step size
-    RRTTree(const State &rootState);
+    RRTTree(const State &rootState, CollisionChecker *collisionChecker);
 
     ~RRTTree();
 
@@ -43,9 +44,9 @@ public:
 
 class RRTConnectPlanner {
 private:
-    RRTTree treeA;
-    RRTTree treeB;
-    CollisionChecker collisionChecker;
+    RRTTree *treeA;
+    RRTTree *treeB;
+    CollisionChecker *collisionChecker;
 
     // Assuming you have some predefined limits for your joints
     static constexpr double minJointLimits[3] = {-M_PI, -M_PI, -M_PI}; // Replace with your actual limits
@@ -61,8 +62,7 @@ private:
     };
 
 public:
-    RRTConnectPlanner(const State &start, const State &goal)
-        : treeA(start), treeB(goal) {}
+    RRTConnectPlanner(const State &start, const State &goal, CollisionChecker *collisionChecker);
 
     std::vector<State> plan();
 

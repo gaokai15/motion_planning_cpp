@@ -6,7 +6,7 @@ int main(){
     Environment env = Environment();
     env.setUpEnv();
     double x,y,alpha;
-    double a = 3.0;
+    double a = 1.0;
     env.getGraspPose(env.target, x, y, alpha);
     cout<<"start_pose: "<<x<<", "<<y<<", "<<alpha<<endl;
     double q1,q2,q3;
@@ -22,7 +22,8 @@ int main(){
     
     State start(q1, q2, q3);
     State goal(g_q1, g_q2, g_q3);
-    RRTConnectPlanner planner(start, goal);
+    CollisionChecker collisionCheckerInstance(env);
+    RRTConnectPlanner planner(start, goal, &collisionCheckerInstance);
 
     std::vector<State> path = planner.plan();
     env.animation(path);

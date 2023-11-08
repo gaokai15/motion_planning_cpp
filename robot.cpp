@@ -83,3 +83,22 @@ void Robot::printConfiguration() const {
                   << ", Angle = " << links[i].q << " radians" << std::endl;
     }
 }
+
+
+vector<vector<Vec2>> Robot::getCollisionPolygons() const {
+    vector<vector<Vec2>> polygons;
+    for(int i=0; i<4; i++){
+        vector<Vec2> polygon;
+        double x = linkpose[i][0];
+        double y = linkpose[i][1];
+        double theta = linkpose[i][2];
+        double w = links[i].w;
+        double l = links[i].l;
+        polygon.push_back(Vec2(x + cos(theta-M_PI/2.0)*w/2.0, y + sin(theta-M_PI/2.0)*w/2.0));
+        polygon.push_back(Vec2(x + cos(theta-M_PI/2.0)*w/2.0 + cos(theta)*l, y + sin(theta-M_PI/2.0)*w/2.0 + sin(theta)*l));
+        polygon.push_back(Vec2(x + cos(theta+M_PI/2.0)*w/2.0 + cos(theta)*l, y + sin(theta+M_PI/2.0)*w/2.0 + sin(theta)*l));
+        polygon.push_back(Vec2(x + cos(theta+M_PI/2.0)*w/2.0, y + sin(theta+M_PI/2.0)*w/2.0));
+        polygons.push_back(polygon);
+    }
+    return polygons;
+}
