@@ -30,21 +30,27 @@ Environment::Environment(){
 
     }
 
-void Environment::setUpEnv(){
+void Environment::setUpEnv(
+        vector<double> cf_target,
+        vector<vector<double>> cf_obs_list,
+        vector<double> cf_goal,
+        double cf_link_length,
+        double cf_link_width,
+        double cf_box_width,
+        double cf_box_height){
     // Define the robot
-    robot = Robot(0.4,0.4,0.4,0.05);
+    robot = Robot(cf_link_length,cf_link_length,cf_link_length,cf_link_width);
 
     // Define a obstacle boxes
+    for(auto box_pose : cf_obs_list){
+        Box box = Box(box_pose[0], box_pose[1], box_pose[2], cf_box_width, cf_box_height);
+        boxes.push_back(box);
+    }
     Box box;
-    double gap = 0.6; // gap between boxes, 0.35
-    box = Box(1.1, 0.35+gap, 0.0, 0.3, 0.3);
-    boxes.push_back(box);
-    box = Box(1.1, 0.35-gap, 0.0, 0.3, 0.3);
-    boxes.push_back(box);
 
     // Target 
-    target = Box(1.1, 0.35, 0.0, 0.3, 0.3);
-    goal = Box(0, 1.3, M_PI/2.0, 0.3, 0.3);
+    target = Box(cf_target[0],cf_target[1],cf_target[2], cf_box_width, cf_box_height);
+    goal = Box(cf_goal[0],cf_goal[1],cf_goal[2], cf_box_width, cf_box_height);
 }
 
 

@@ -48,7 +48,15 @@ public:
 
     Environment();
 
-    void setUpEnv();
+    void setUpEnv(
+        vector<double> cf_target,
+        vector<vector<double>> cf_obs_list,
+        vector<double> cf_goal,
+        double cf_link_length,
+        double cf_link_width,
+        double cf_box_width,
+        double cf_box_height
+        );
 
     void getGraspPose(Box box, double& x, double& y, double& alpha);
 

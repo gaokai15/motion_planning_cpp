@@ -51,9 +51,17 @@ void Robot::IK(double x, double y, double theta, double &q1, double &q2, double 
     double cosq1 = (u*(links[1].l + links[2].l*cosq2) + v*links[2].l*sinq2)/(links[1].l*links[1].l + links[2].l*links[2].l + 2*links[1].l*links[2].l*cosq2);
     q1 = atan2(sinq1, cosq1);
     q3 = theta - q1 - q2;
-    cout<<"q1: "<<q1<<endl;
-    cout<<"q2: "<<q2<<endl;
-    cout<<"q3: "<<q3<<endl;
+    if(isnan(q1) || isnan(q2) || isnan(q3)){
+        cout<<endl<<endl;
+        cout << "Grasp/Place Pose Unreachable: IK failed" << endl;
+        exit(1);
+    }
+    if(q1 > M_PI/2 || q1 < -M_PI/2 || q2 > M_PI/2 || q2 < -M_PI/2 || q3 > M_PI/2 || q3 < -M_PI/2){
+        cout<<endl<<endl;
+        cout<<q1<<" "<<q2<<" "<<q3<<endl;
+        cout << "Grasp/Place Pose Out of Assumed Bound [-pi/2, pi/2]" << endl;
+        exit(1);
+    }
 }
 
 void Robot::moveToJointState(double q1, double q2, double q3){
