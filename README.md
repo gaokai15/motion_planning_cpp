@@ -1,4 +1,4 @@
-# Motion Planning Assignment Report
+# Motion Planning with RRT Connect
 
 ## Problem
 Consider a planar robot $R$ manipulating objects in a 2D workspace. The robot has four links $l_0, l_1, l_2, l_3$ ($l_0$ is the base link) with the assumption that each joint is in the range of $[-\pi/2,\pi/2]$. Each pose in the workspace is represented with the format $(x,y,\alpha)$. Based on the assumptions, the robot is tasked to find a motion sequence $\Pi$ moving a target object $T$ from a start pose $S_T$ to a goal pose $S_G$. Each motion in $\Pi$ is required to be collision-free with other boxes in the environment.
