@@ -76,6 +76,7 @@ TreeNode *RRTTree::extend(const State &targetState) {
     }
 
     // Check if the path to the new state is collision-free
+    // TODO: Implement a trajectory collision checker
     if (collisionChecker.isCollisionFree(newState)) {
         // Create a new node and add it to the tree
         TreeNode *newNode = new TreeNode(newState, nearestNode);
@@ -127,6 +128,7 @@ TreeNode *RRTTree::connect(const State &targetState, bool &Connected) {
         }
 
         // Check if the path to the new state is collision-free
+        // // TODO: Implement a trajectory collision checker
         if (collisionChecker.isCollisionFree(newState)) {
             // Create a new node and add it to the tree
             newNode = new TreeNode(newState, nearestNode);

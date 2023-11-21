@@ -3,6 +3,7 @@
 #include <nlohmann/json.hpp>
 #include "env.h"
 #include "rrt_connect.h"
+#include "rrt_star.h"
 
 using json = nlohmann::json;
 
@@ -34,6 +35,7 @@ int main(){
     double cf_link_width = config["link_width"].get<double>();
     double cf_box_width = config["box_width"].get<double>();
     double cf_box_height = config["box_height"].get<double>();
+    double cf_clearance = config["clearance"].get<double>();
 
     Environment env = Environment();
     env.setUpEnv(
@@ -43,10 +45,10 @@ int main(){
         cf_link_length,
         cf_link_width,
         cf_box_width,
-        cf_box_height
+        cf_box_height,
+        cf_clearance
     );
     double x,y,alpha;
-    double a = 1.0;
     env.getGraspPose(env.target, x, y, alpha);
     double q1,q2,q3;
     env.robot.IK(x,y,alpha,q1,q2,q3);
@@ -54,11 +56,24 @@ int main(){
     env.getGraspPose(env.goal, x, y, alpha);
     double g_q1,g_q2,g_q3;
     env.robot.IK(x,y,alpha,g_q1,g_q2,g_q3);
+    CollisionChecker collisionCheckerInstance(env);
     State start(q1, q2, q3);
     State goal(g_q1, g_q2, g_q3);
-    CollisionChecker collisionCheckerInstance(env);
-    RRTConnectPlanner planner(start, goal, collisionCheckerInstance);
-    std::vector<State> path = planner.plan();
+    std::vector<State> path;
+    bool ChooseRRTStar = false;
+    if(ChooseRRTStar){
+        unsigned int max_iter = 20000;
+        double step_size = 0.05;
+        double search_radius = 0.1;
+
+        RRTStar rrt( start, goal, max_iter, step_size, search_radius, collisionCheckerInstance);
+        rrt.Generate();
+        path = rrt.GetPath();
+    }
+    else{
+        RRTConnectPlanner planner(start, goal, collisionCheckerInstance);
+        path = planner.plan();
+    }
     path.push_back(State(g_q1, g_q2, g_q3));
     env.animation(path);
     return 0;

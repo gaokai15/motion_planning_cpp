@@ -8,5 +8,6 @@
     "link_length": 0.4,
     "link_width": 0.05,
     "box_width": 0.3,
-    "box_height": 0.3
+    "box_height": 0.3,
+    "clearance": 0.10
 }

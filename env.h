@@ -28,7 +28,7 @@ struct Box {
 
 
 struct Projection {
-    float min, max;
+    double min, max;
 };
 
 
@@ -38,6 +38,7 @@ public:
     std::vector<Box> boxes;
     Box target;
     Box goal;
+    double clearance = 0.1;
 
     // Plotting
     int ImageWidth = 500;
@@ -55,7 +56,8 @@ public:
         double cf_link_length,
         double cf_link_width,
         double cf_box_width,
-        double cf_box_height
+        double cf_box_height,
+        double cf_clearance
         );
 
     void getGraspPose(Box box, double& x, double& y, double& alpha);
@@ -90,6 +92,12 @@ public:
     // The main function to check for polygon collision
     bool checkPolygonCollision(const std::vector<Vec2>& poly1, const std::vector<Vec2>& poly2);
     
+    double pointLineDistance(const Vec2& point, const Vec2& a, const Vec2& b);
+
+    // Check if the projections of two ranges overlap
+    bool overlap(double minA, double maxA, double minB, double maxB);
+
+    double polygonDistance(const std::vector<Vec2>& polyA, const std::vector<Vec2>& polyB);
 };
 
 #endif // ENV_H

@@ -37,7 +37,10 @@ void Environment::setUpEnv(
         double cf_link_length,
         double cf_link_width,
         double cf_box_width,
-        double cf_box_height){
+        double cf_box_height,
+        double cf_clearance
+        ){
+    clearance = cf_clearance;
     // Define the robot
     robot = Robot(cf_link_length,cf_link_length,cf_link_length,cf_link_width);
 
@@ -282,8 +285,17 @@ bool Environment::isCollisionFree(const State &state){
     for(auto box : boxes){
         std::vector<Vec2> box_vertices = box.getVertices();
         for(auto poly : polygons){
+            if(false){ // use polygon distance
             if(checkPolygonCollision(poly, box_vertices)){
                 return false;
+            }}
+            else{
+                if(checkPolygonCollision(poly, box_vertices)){
+                    return false;
+                }
+                if(polygonDistance(poly, box_vertices) <= clearance){
+                    return false;
+                }
             }
         }
     }
@@ -293,10 +305,10 @@ bool Environment::isCollisionFree(const State &state){
 
 // Project a polygon on an axis and returns it as a range
 Projection Environment::project(const std::vector<Vec2>& polygon, const Vec2& axis) {
-    float min = axis.dot(polygon[0]);
-    float max = min;
+    double min = axis.dot(polygon[0]);
+    double max = min;
     for (const auto& point : polygon) {
-        float projected = axis.dot(point);
+        double projected = axis.dot(point);
         min = (projected < min) ? projected : min;
         max = (projected > max) ? projected : max;
     }
@@ -338,6 +350,58 @@ bool Environment::checkPolygonCollision(const std::vector<Vec2>& poly1, const st
     return true; // Collision
 }
 
+// Helper function to compute the projection of a point onto a line defined by two points (a, b)
+double Environment::pointLineDistance(const Vec2& point, const Vec2& a, const Vec2& b) {
+    Vec2 ap = point - a;
+    Vec2 ab = b - a;
+    double magnitudeAB = ab.magnitude();
+    double abDotAp = ab.dot(ap);
+    double distance = abDotAp / magnitudeAB;
+    Vec2 closestPoint;
+    if (distance < 0) {
+        closestPoint = a;
+    } else if (distance > magnitudeAB) {
+        closestPoint = b;
+    } else {
+        closestPoint = a + ab * (abDotAp / (magnitudeAB * magnitudeAB));
+    }
+    return point.distance(closestPoint);
+}
 
+// Check if the projections of two ranges overlap
+bool Environment::overlap(double minA, double maxA, double minB, double maxB) {
+    return !(minA > maxB || minB > maxA);
+}
+
+// Compute the minimum distance between two polygons
+double Environment::polygonDistance(const std::vector<Vec2>& polyA, const std::vector<Vec2>& polyB) {
+    double minDistance = std::numeric_limits<double>::infinity();
+    
+    // Check distances from vertices of polyA to edges of polyB and vice versa
+    for (int i = 0; i < 2; ++i) {
+        const std::vector<Vec2>& poly1 = (i == 0) ? polyA : polyB;
+        const std::vector<Vec2>& poly2 = (i == 0) ? polyB : polyA;
+
+        for (size_t j = 0; j < poly1.size(); ++j) {
+            Vec2 a = poly1[j];
+            Vec2 b = poly1[(j + 1) % poly1.size()];
+
+            for (const auto& p : poly2) {
+                double dist = pointLineDistance(p, a, b);
+                minDistance = std::min(minDistance, dist);
+            }
+        }
+    }
+
+    // Check vertex to vertex distances
+    for (const auto& vA : polyA) {
+        for (const auto& vB : polyB) {
+            double dist = vA.distance( vB);
+            minDistance = std::min(minDistance, dist);
+        }
+    }
+
+    return minDistance;
+}
 
 
